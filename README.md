@@ -1,70 +1,182 @@
 # youtube-analysis-aws
+
 YouTube Data Analysis Data Engineering Project using AWS
 
+---
 
-1. Creating the IAM user
+## 📖 TABLE OF CONTENTS
 
-2. Installing the AWS CLI:
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
+- [ABOUT](#about)
+- [ARCHITECTURE](#architecture)
+- [FEATURES](#features)
+- [PREREQUISITES](#prerequisites)
+- [INSTALLATION](#installation)
+- [USAGE](#usage)
+- [PROJECT STRUCTURE](#project-structure)
+- [TECHNOLOGIES USED](#technologies-used)
+- [CONTRIBUTING](#contributing)
+- [LICENSE](#license)
+- [CONTACT](#contact)
 
-3. Run: aws configure to configure the cli with the IAM user account both access key and secret access key and region name.
+---
 
-4. Create the s3 bucket for the raw data with name: ytaws-raw-useast-1-dev (enable encryption, block all public access)
+## 📌 ABOUT
 
-5. Unzip the dataset and now upload it to s3 using cli:
+This project demonstrates a data engineering pipeline that:
 
-aws s3 cp . s3://ytaws-raw-useast-1-dev/youtube/raw_statistics_reference_data/ --recursive --exclude "*" --include "*.json"
+1. **Ingests** YouTube data into AWS S3.
+2. **Processes** the data using AWS Glue and PySpark.
+3. **Analyzes** the data using AWS Athena.
+4. **Visualizes** insights with Amazon QuickSight.
 
-6. Copy all csv files:
+---
 
-aws s3 cp CAvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=ca/
-aws s3 cp DEvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=de/
-aws s3 cp FRvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=fr/
-aws s3 cp GBvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=gb/
-aws s3 cp INvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=in/
-aws s3 cp JPvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=jp/
-aws s3 cp KRvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=kr/
-aws s3 cp MXvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=mx/
-aws s3 cp RUvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=ru/
-aws s3 cp USvideos.csv s3://ytaws-raw-useast-1-dev/youtube/raw_statistics/region=us/
+## 🏗️ ARCHITECTURE
 
-7. Using AWS Glue Data Catalog (for data metadata)
+The pipeline follows this flow:
 
-* Create a crawler
-* create the IAM role for glue to access s3 and for glue to acces another services through glue service role permission
-* Run the crawler, now you have the metadata table in the tables of aws glue
-* Now we can use the aws athena to view the data, we need to specify the output location.
+1. **Data Ingestion**:
+   - Upload YouTube data to AWS S3 using AWS CLI.
 
-8. Now we need the fix the structure of our json files using lambda, so we will create a lambda (python 3.8) function to fix the json files from s3 (we will need a new role to let lambda access the s3 data), create the env variables of lambda, then deploy and test it (add layer and increase timeout if required).
+2. **Data Processing**:
+   - Use AWS Glue and PySpark to transform and clean the data.
 
-The lambda code attached.
+3. **Data Analysis**:
+   - Query the processed data using AWS Athena.
 
-Athena Queries attached.
+4. **Data Visualization**:
+   - Create dashboards and visualizations using Amazon QuickSight.
 
-9. Now we will create an ETL job using AWS Athena to process the csv files. (code attached: pyspark-etl.py)
-NOW csv data moved to cleaned bucket in s3.
+![Architecture Diagram](architecture.jpeg)
 
-10. Next is to automate the process of cleaning the json files not just one json file. using lambda trigger. (DONE)
+---
 
-11. Combine all data and generate useful information and dashboard.
+## ✨ FEATURES
 
-Using the AWS Glue Visual ETL, create two sources for glue tables in the cleaned database, join them on id and category it and save the result to a new bucket (ytaws-analytics-useast-1-dev), create glue database (CREATE DATABASE db_ytaws_analytics;) Then save and run the job.
+- End-to-end data pipeline on AWS.
+- Automated data transformation with PySpark.
+- Serverless data querying using Athena.
+- Interactive dashboards with QuickSight.
 
-12. Using AWS QuickSight for Dashboard
-* Create account
-* Create database from glue
-* Use for analytics
-* Do some visualizations
+---
 
+## ✅ PREREQUISITES
 
+Before you begin, ensure you have met the following requirements:
 
-refs:
+- AWS account with necessary permissions.
+- AWS CLI installed on your machine.
+- Python 3.7 or higher installed.
 
-* https://aws-sdk-pandas.readthedocs.io/en/stable/tutorials/005%20-%20Glue%20Catalog.html
-* https://www.kaggle.com/datasets/datasnaek/youtube-new?resource=download
+---
 
+## 🚀 INSTALLATION
 
+1. **Clone the repository**:
 
+   ```bash
+   git clone https://github.com/TawfikYasser/youtube-analysis-aws.git
+   cd youtube-analysis-aws
+   ```
 
+2. **Create an IAM user** with programmatic access and note the Access Key ID and Secret Access Key.
+
+3. **Install AWS CLI**:
+
+   ```bash
+   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+   unzip awscliv2.zip
+   sudo ./aws/install
+   ```
+
+4. **Configure AWS CLI**:
+
+   ```bash
+   aws configure
+   ```
+
+   Enter your Access Key ID, Secret Access Key, default region, and output format.
+
+---
+
+## 🛠️ USAGE
+
+1. **Upload data to S3**:
+
+   ```bash
+   aws s3 cp your_data_file.csv s3://your-bucket-name/
+   ```
+
+2. **Run PySpark ETL script**:
+
+   ```bash
+   python pyspark-etl.py
+   ```
+
+3. **Execute Athena SQL queries**:
+
+   - Use the `athena.sql` and `athena-etl-sql.sql` files to run queries in the AWS Athena console.
+
+4. **Visualize data with QuickSight**:
+
+   - Refer to the `ytaws-analytcis-dashboard-quicksight.pdf` for dashboard examples.
+
+---
+
+## 📁 PROJECT STRUCTURE
+
+```bash
+youtube-analysis-aws/
+├── architecture.jpeg                         # Architecture diagram
+├── athena-etl-sql.sql                        # Athena ETL SQL script
+├── athena.sql                                # Athena SQL queries
+├── glue-etl-analytics.png                    # Glue ETL analytics image
+├── lambda.py                                 # AWS Lambda function script
+├── logical-plan_2024-04-09T16_11_39.545+02_00.png  # Logical plan image
+├── pyspark-etl.py                            # PySpark ETL script
+├── s3_cli_command.sh                         # S3 CLI commands
+├── ytaws-analytcis-dashboard-quicksight.pdf  # QuickSight dashboard PDF
+├── ytaws-parquet-analytics.py                # Parquet analytics script
+└── README.md                                 # Project documentation
+```
+
+---
+
+## 🧰 TECHNOLOGIES USED
+
+- **AWS S3**: Object storage service.
+- **AWS Glue**: Serverless data integration service.
+- **AWS Athena**: Interactive query service.
+- **Amazon QuickSight**: Business intelligence service.
+- **PySpark**: Python API for Apache Spark.
+- **AWS Lambda**: Serverless compute service.
+- **AWS CLI**: Command-line interface for AWS.
+
+---
+
+## 🤝 CONTRIBUTING
+
+Contributions are welcome! To contribute:
+
+1. **Fork** the repository.
+2. **Create** a new branch: `git checkout -b feature/your-feature-name`.
+3. **Commit** your changes: `git commit -m 'Add some feature'`.
+4. **Push** to the branch: `git push origin feature/your-feature-name`.
+5. **Submit** a pull request.
+
+Please ensure your code adheres to the project's coding standards and includes relevant tests.
+
+---
+
+## 📄 LICENSE
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 📬 CONTACT
+
+**Tawfik Yasser**  
+GitHub: [@TawfikYasser](https://github.com/TawfikYasser)
+
+---
